@@ -1,0 +1,7 @@
+# Direct versions tested on Python 3.10; full resolved environment: requirements-lock.txt.
+fastapi==0.135.1
+pydantic==2.12.5
+uvicorn==0.41.0
+sentence-transformers==5.1.2
+transformers==4.57.1
+numpy==2.2.6

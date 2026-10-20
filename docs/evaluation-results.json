@@ -1,0 +1,972 @@
+{
+  "demo": true,
+  "synthetic": true,
+  "dataset": {
+    "profile_count": 14,
+    "request_count": 24,
+    "calibration_count": 8,
+    "evaluation_count": 16,
+    "independent_splits": true,
+    "reference_time": "2026-10-19T12:00:00+00:00"
+  },
+  "methodology": {
+    "data": "Fresh in-memory fictional seed snapshot; live data and assignments are not changed.",
+    "coverage": "Held-out academic/school-transition requests with at least one threshold-clearing suggestion divided by all held-out academic/school-transition requests, including the no-match case.",
+    "top_three_relevance": "Relevant returned mentors divided by all returned mentors among up to three suggestions per held-out peer request; no padding with fabricated suggestions.",
+    "top_three_recall": "Relevant mentors in the returned top three divided by all labeled relevant mentors that pass hard eligibility, including relevant mentors below the quality cutoff.",
+    "top_three_hit_rate": "Held-out peer requests with a relevant suggestion divided by requests with at least one hard-eligible labeled relevant mentor.",
+    "eligibility": "Both methods require a declared strength in the analyzed topic and use the same grade, shared-slot, capacity, self-match, and block/report constraints from the production scorer.",
+    "waiting": "Fixed synthetic hours since each seeded request was created. Larger served total means older requests were prioritized; this is not measured real-world response time.",
+    "workload": "Projected active assignments, including the seeded occupied place, across all fictional profiles. No capacity is mutated by evaluation.",
+    "limits": "24 manually curated fictional requests are a software demonstration, not a validated educational or safeguarding study. Calibration and evaluation examples are distinct."
+  },
+  "matching": {
+    "keyword": {
+      "available": true,
+      "method": "keyword",
+      "threshold": 0.61,
+      "calibration": {
+        "threshold": 0.61,
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9474,
+        "true_positives": 9,
+        "false_positives": 0,
+        "false_negatives": 1,
+        "split": "calibration",
+        "example_count": 8,
+        "candidate_observations": 10,
+        "relevant_observations": 10,
+        "method": "Maximize candidate-level F1, then precision and recall; ties use the lowest cutoff. Hard eligibility filters run before scoring. Cutoff is at least 0.61.",
+        "example_ids": [
+          "cal-01",
+          "cal-02",
+          "cal-03",
+          "cal-04",
+          "cal-05",
+          "cal-06",
+          "cal-07",
+          "cal-08"
+        ]
+      },
+      "evaluation": {
+        "split": "evaluation",
+        "example_count": 16,
+        "coverage": {
+          "value": 0.9231,
+          "numerator": 12,
+          "denominator": 13
+        },
+        "top_three_relevance": {
+          "value": 1.0,
+          "numerator": 16,
+          "denominator": 16
+        },
+        "top_three_recall": {
+          "value": 0.9412,
+          "numerator": 16,
+          "denominator": 17
+        },
+        "top_three_hit_rate": {
+          "value": 1.0,
+          "numerator": 12,
+          "denominator": 12
+        },
+        "route_accuracy": {
+          "value": 1.0,
+          "numerator": 16,
+          "denominator": 16
+        },
+        "topic_accuracy": {
+          "value": 1.0,
+          "numerator": 13,
+          "denominator": 13
+        },
+        "examples": [
+          {
+            "id": "eval-01",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "algebra",
+            "predicted_topic": "algebra",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-quantumspark",
+              "hero-orbit"
+            ],
+            "relevant_top_three": 2
+          },
+          {
+            "id": "eval-02",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "geometry",
+            "predicted_topic": "geometry",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-orbit"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-03",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "python",
+            "predicted_topic": "python",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-flashforge",
+              "hero-pixel"
+            ],
+            "relevant_top_three": 2
+          },
+          {
+            "id": "eval-04",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "robotics",
+            "predicted_topic": "robotics",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-flashforge",
+              "hero-quantumspark"
+            ],
+            "relevant_top_three": 2
+          },
+          {
+            "id": "eval-05",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "writing",
+            "predicted_topic": "writing",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-echo"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-06",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "presentations",
+            "predicted_topic": "presentations",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-novamind"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-07",
+            "scenario": "full_mentor_existing_assignment",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "science",
+            "predicted_topic": "science",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-sage"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-08",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "physics",
+            "predicted_topic": "physics",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-lumen",
+              "hero-quantumspark"
+            ],
+            "relevant_top_three": 2
+          },
+          {
+            "id": "eval-09",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "study_skills",
+            "predicted_topic": "study_skills",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-atlas"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-10",
+            "scenario": "standard",
+            "expected_route": "school_transition",
+            "predicted_route": "school_transition",
+            "expected_topic": "school_transition",
+            "predicted_topic": "school_transition",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-harbor"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-11",
+            "scenario": "ambiguous",
+            "expected_route": "clarify",
+            "predicted_route": "clarify",
+            "expected_topic": null,
+            "predicted_topic": null,
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-12",
+            "scenario": "sensitive",
+            "expected_route": "private_support",
+            "predicted_route": "private_support",
+            "expected_topic": null,
+            "predicted_topic": null,
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-13",
+            "scenario": "no_shared_slot",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "python",
+            "predicted_topic": "python",
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-14",
+            "scenario": "full_mentor_excluded",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "science",
+            "predicted_topic": "science",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-sage"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-15",
+            "scenario": "trusted_adult_resource_fallback",
+            "expected_route": "school_transition",
+            "predicted_route": "school_transition",
+            "expected_topic": "school_transition",
+            "predicted_topic": "school_transition",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-atlas"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-16",
+            "scenario": "unsupported_topic",
+            "expected_route": "clarify",
+            "predicted_route": "clarify",
+            "expected_topic": null,
+            "predicted_topic": null,
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          }
+        ]
+      }
+    },
+    "semantic": {
+      "available": true,
+      "method": "semantic",
+      "threshold": 0.61,
+      "calibration": {
+        "threshold": 0.61,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6667,
+        "true_positives": 5,
+        "false_positives": 0,
+        "false_negatives": 5,
+        "split": "calibration",
+        "example_count": 8,
+        "candidate_observations": 10,
+        "relevant_observations": 10,
+        "method": "Maximize candidate-level F1, then precision and recall; ties use the lowest cutoff. Hard eligibility filters run before scoring. Cutoff is at least 0.61.",
+        "example_ids": [
+          "cal-01",
+          "cal-02",
+          "cal-03",
+          "cal-04",
+          "cal-05",
+          "cal-06",
+          "cal-07",
+          "cal-08"
+        ]
+      },
+      "evaluation": {
+        "split": "evaluation",
+        "example_count": 16,
+        "coverage": {
+          "value": 0.7692,
+          "numerator": 10,
+          "denominator": 13
+        },
+        "top_three_relevance": {
+          "value": 1.0,
+          "numerator": 12,
+          "denominator": 12
+        },
+        "top_three_recall": {
+          "value": 0.7059,
+          "numerator": 12,
+          "denominator": 17
+        },
+        "top_three_hit_rate": {
+          "value": 0.8333,
+          "numerator": 10,
+          "denominator": 12
+        },
+        "route_accuracy": {
+          "value": 1.0,
+          "numerator": 16,
+          "denominator": 16
+        },
+        "topic_accuracy": {
+          "value": 1.0,
+          "numerator": 13,
+          "denominator": 13
+        },
+        "examples": [
+          {
+            "id": "eval-01",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "algebra",
+            "predicted_topic": "algebra",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-quantumspark"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-02",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "geometry",
+            "predicted_topic": "geometry",
+            "eligible_candidates": 1,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-03",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "python",
+            "predicted_topic": "python",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-flashforge",
+              "hero-pixel"
+            ],
+            "relevant_top_three": 2
+          },
+          {
+            "id": "eval-04",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "robotics",
+            "predicted_topic": "robotics",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-flashforge",
+              "hero-quantumspark"
+            ],
+            "relevant_top_three": 2
+          },
+          {
+            "id": "eval-05",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "writing",
+            "predicted_topic": "writing",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-echo"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-06",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "presentations",
+            "predicted_topic": "presentations",
+            "eligible_candidates": 2,
+            "top_three_ids": [
+              "hero-novamind"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-07",
+            "scenario": "full_mentor_existing_assignment",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "science",
+            "predicted_topic": "science",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-sage"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-08",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "physics",
+            "predicted_topic": "physics",
+            "eligible_candidates": 2,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-09",
+            "scenario": "standard",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "study_skills",
+            "predicted_topic": "study_skills",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-atlas"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-10",
+            "scenario": "standard",
+            "expected_route": "school_transition",
+            "predicted_route": "school_transition",
+            "expected_topic": "school_transition",
+            "predicted_topic": "school_transition",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-harbor"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-11",
+            "scenario": "ambiguous",
+            "expected_route": "clarify",
+            "predicted_route": "clarify",
+            "expected_topic": null,
+            "predicted_topic": null,
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-12",
+            "scenario": "sensitive",
+            "expected_route": "private_support",
+            "predicted_route": "private_support",
+            "expected_topic": null,
+            "predicted_topic": null,
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-13",
+            "scenario": "no_shared_slot",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "python",
+            "predicted_topic": "python",
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          },
+          {
+            "id": "eval-14",
+            "scenario": "full_mentor_excluded",
+            "expected_route": "academic",
+            "predicted_route": "academic",
+            "expected_topic": "science",
+            "predicted_topic": "science",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-sage"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-15",
+            "scenario": "trusted_adult_resource_fallback",
+            "expected_route": "school_transition",
+            "predicted_route": "school_transition",
+            "expected_topic": "school_transition",
+            "predicted_topic": "school_transition",
+            "eligible_candidates": 1,
+            "top_three_ids": [
+              "hero-atlas"
+            ],
+            "relevant_top_three": 1
+          },
+          {
+            "id": "eval-16",
+            "scenario": "unsupported_topic",
+            "expected_route": "clarify",
+            "predicted_route": "clarify",
+            "expected_topic": null,
+            "predicted_topic": null,
+            "eligible_candidates": 0,
+            "top_three_ids": [],
+            "relevant_top_three": 0
+          }
+        ]
+      }
+    }
+  },
+  "semantic_ran": true,
+  "matching_mode": "semantic",
+  "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "assignment": {
+    "matching_mode": "semantic",
+    "algorithm": "capacity-aware minimum-cost maximum-flow",
+    "eligible_missions": 12,
+    "batch": {
+      "assigned_count": 9,
+      "coverage": {
+        "value": 0.75,
+        "numerator": 9,
+        "denominator": 12
+      },
+      "waiting": {
+        "reference_time": "2026-10-19T12:00:00+00:00",
+        "served_wait_hours_total": 388.0,
+        "served_wait_hours_mean": 43.11,
+        "remaining_wait_hours_mean": 42.67,
+        "remaining_requests": 3
+      },
+      "workload": {
+        "existing_assignments": 1,
+        "new_assignments_by_mentor": {
+          "hero-atlas": 2,
+          "hero-echo": 1,
+          "hero-flashforge": 1,
+          "hero-harbor": 1,
+          "hero-novamind": 1,
+          "hero-pixel": 1,
+          "hero-quantumspark": 1,
+          "hero-sage": 1
+        },
+        "projected_assignments_by_mentor": {
+          "hero-atlas": 2,
+          "hero-echo": 1,
+          "hero-flashforge": 1,
+          "hero-harbor": 1,
+          "hero-lumen": 0,
+          "hero-novamind": 1,
+          "hero-orbit": 0,
+          "hero-pixel": 1,
+          "hero-quantumspark": 1,
+          "hero-sage": 1,
+          "hero-shieldx": 1,
+          "learner-aria": 0,
+          "learner-mira": 0,
+          "learner-owen": 0
+        },
+        "capacity_violations": [],
+        "maximum_projected_load": 2,
+        "projected_load_standard_deviation": 0.589,
+        "mentor_count": 14
+      },
+      "assignments": [
+        {
+          "mission_id": "eval-09",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-atlas",
+          "mentor_alias": "AtlasGuide",
+          "score": 0.773961,
+          "component_scores": {
+            "S": 0.643237,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: study skills. Shared availability: Thu 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Thu 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-15",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-atlas",
+          "mentor_alias": "AtlasGuide",
+          "score": 0.622346,
+          "component_scores": {
+            "S": 0.451698,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 0.5
+          },
+          "explanation": "Declared strengths: school transition. Shared availability: Thu 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent. In this batch preview, 1 earlier assignment(s) use this mentor's capacity first; F is projected at acceptance.",
+          "shared_slots": [
+            "Thu 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-05",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-echo",
+          "mentor_alias": "EchoVerse",
+          "score": 0.668338,
+          "component_scores": {
+            "S": 0.379179,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: writing. Shared availability: Fri 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Fri 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-04",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-flashforge",
+          "mentor_alias": "FlashForge",
+          "score": 0.648873,
+          "component_scores": {
+            "S": 0.538849,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: robotics. Shared availability: Mon 16:00, Thu 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Mon 16:00",
+            "Thu 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-10",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-harbor",
+          "mentor_alias": "HarborLight",
+          "score": 0.641567,
+          "component_scores": {
+            "S": 0.520583,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: school transition. Shared availability: Sat 10:00, Wed 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Sat 10:00",
+            "Wed 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-06",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-novamind",
+          "mentor_alias": "NovaMind",
+          "score": 0.70702,
+          "component_scores": {
+            "S": 0.684216,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: presentations. Shared availability: Mon 16:00, Wed 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Mon 16:00",
+            "Wed 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-03",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-pixel",
+          "mentor_alias": "PixelPilot",
+          "score": 0.610189,
+          "component_scores": {
+            "S": 0.442138,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: python. Shared availability: Fri 16:00, Mon 16:00. Support preference overlap: 2/2; mentor has 1 of 1 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Fri 16:00",
+            "Mon 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-01",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-quantumspark",
+          "mentor_alias": "QuantumSpark",
+          "score": 0.625802,
+          "component_scores": {
+            "S": 0.481171,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: algebra. Shared availability: Mon 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Mon 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-14",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-sage",
+          "mentor_alias": "SageCircuit",
+          "score": 0.762551,
+          "component_scores": {
+            "S": 0.614712,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: science. Shared availability: Thu 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Thu 16:00",
+            "Tue 16:00"
+          ]
+        }
+      ]
+    },
+    "greedy": {
+      "assigned_count": 8,
+      "coverage": {
+        "value": 0.6667,
+        "numerator": 8,
+        "denominator": 12
+      },
+      "waiting": {
+        "reference_time": "2026-10-19T12:00:00+00:00",
+        "served_wait_hours_total": 338.0,
+        "served_wait_hours_mean": 42.25,
+        "remaining_wait_hours_mean": 44.5,
+        "remaining_requests": 4
+      },
+      "workload": {
+        "existing_assignments": 1,
+        "new_assignments_by_mentor": {
+          "hero-atlas": 2,
+          "hero-echo": 1,
+          "hero-flashforge": 1,
+          "hero-harbor": 1,
+          "hero-novamind": 1,
+          "hero-quantumspark": 1,
+          "hero-sage": 1
+        },
+        "projected_assignments_by_mentor": {
+          "hero-atlas": 2,
+          "hero-echo": 1,
+          "hero-flashforge": 1,
+          "hero-harbor": 1,
+          "hero-lumen": 0,
+          "hero-novamind": 1,
+          "hero-orbit": 0,
+          "hero-pixel": 0,
+          "hero-quantumspark": 1,
+          "hero-sage": 1,
+          "hero-shieldx": 1,
+          "learner-aria": 0,
+          "learner-mira": 0,
+          "learner-owen": 0
+        },
+        "capacity_violations": [],
+        "maximum_projected_load": 2,
+        "projected_load_standard_deviation": 0.6103,
+        "mentor_count": 14
+      },
+      "assignments": [
+        {
+          "mission_id": "eval-01",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-quantumspark",
+          "mentor_alias": "QuantumSpark",
+          "score": 0.625802,
+          "component_scores": {
+            "S": 0.481171,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: algebra. Shared availability: Mon 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Mon 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-03",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-flashforge",
+          "mentor_alias": "FlashForge",
+          "score": 0.610189,
+          "component_scores": {
+            "S": 0.442138,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: python. Shared availability: Mon 16:00, Thu 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Mon 16:00",
+            "Thu 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-05",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-echo",
+          "mentor_alias": "EchoVerse",
+          "score": 0.668338,
+          "component_scores": {
+            "S": 0.379179,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: writing. Shared availability: Fri 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Fri 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-06",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-novamind",
+          "mentor_alias": "NovaMind",
+          "score": 0.70702,
+          "component_scores": {
+            "S": 0.684216,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: presentations. Shared availability: Mon 16:00, Wed 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Mon 16:00",
+            "Wed 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-09",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-atlas",
+          "mentor_alias": "AtlasGuide",
+          "score": 0.773961,
+          "component_scores": {
+            "S": 0.643237,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: study skills. Shared availability: Thu 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Thu 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-10",
+          "requester_id": "learner-aria",
+          "mentor_id": "hero-harbor",
+          "mentor_alias": "HarborLight",
+          "score": 0.641567,
+          "component_scores": {
+            "S": 0.520583,
+            "A": 0.333333,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: school transition. Shared availability: Sat 10:00, Wed 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Sat 10:00",
+            "Wed 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-14",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-sage",
+          "mentor_alias": "SageCircuit",
+          "score": 0.762551,
+          "component_scores": {
+            "S": 0.614712,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 1.0
+          },
+          "explanation": "Declared strengths: science. Shared availability: Thu 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent.",
+          "shared_slots": [
+            "Thu 16:00",
+            "Tue 16:00"
+          ]
+        },
+        {
+          "mission_id": "eval-15",
+          "requester_id": "learner-mira",
+          "mentor_id": "hero-atlas",
+          "mentor_alias": "AtlasGuide",
+          "score": 0.622346,
+          "component_scores": {
+            "S": 0.451698,
+            "A": 0.666667,
+            "C": 1.0,
+            "F": 0.5
+          },
+          "explanation": "Declared strengths: school transition. Shared availability: Thu 16:00, Tue 16:00. Support preference overlap: 2/2; mentor has 2 of 2 places free. S uses cached sentence embeddings; H = 0.40S + 0.25A + 0.20C + 0.15F. Giving and receiving are independent. In the greedy simulation, 1 earlier assignment(s) use this mentor's capacity first; F is projected at acceptance.",
+          "shared_slots": [
+            "Thu 16:00",
+            "Tue 16:00"
+          ]
+        }
+      ]
+    },
+    "coverage_gain_count": 1,
+    "methodology": "Maximum number of publishable open missions served; then total waiting time of served missions; then total quality. Capacity slots include the decline in F, and each slot clears the calibrated threshold. Greedy processes oldest missions first and takes the highest available recommendation. Coverage denominator includes publishable missions with no eligible mentor."
+  }
+}
