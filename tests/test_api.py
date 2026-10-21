@@ -272,3 +272,12 @@ def test_static_root_and_api_errors_are_not_confused(client):
     invalid_json = client.post("/api/missions", content="{", headers={"Content-Type": "application/json"})
     assert invalid_json.status_code == 422
     assert invalid_json.json()["error"]["code"] == "validation_error"
+
+
+def test_root_head_supports_hosting_probes(client):
+    page = client.get("/")
+    probe = client.head("/")
+    assert page.status_code == probe.status_code == 200
+    assert probe.content == b""
+    assert probe.headers["content-type"] == page.headers["content-type"]
+    assert probe.headers["content-length"] == page.headers["content-length"]

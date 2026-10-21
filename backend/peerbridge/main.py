@@ -312,7 +312,7 @@ if (DIST / "assets").is_dir():
     app.mount("/assets", StaticFiles(directory=str(DIST / "assets")), name="assets")
 
 
-@app.get("/", include_in_schema=False)
+@app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
 def frontend_index():
     if (DIST / "index.html").is_file():
         return FileResponse(DIST / "index.html")
