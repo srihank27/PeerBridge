@@ -2,19 +2,8 @@
 
 import re
 from . import semantic
+from .topics import list_topics
 
-KEYWORDS = {
-    "algebra": ("algebra", "equation", "equations", "variable", "variables", "letters", "solve for", "linear", "quadratic"),
-    "geometry": ("geometry", "triangle", "triangles", "angles", "perimeter", "area", "circle", "proof", "shapes"),
-    "python": ("python", "coding", "programming", "code", "debug", "loop", "loops", "function", "functions", "list", "lists"),
-    "robotics": ("robot", "robots", "robotics", "sensor", "sensors", "motor", "motors", "arduino"),
-    "writing": ("writing", "essay", "essays", "paragraph", "grammar", "revision", "story", "stories", "write"),
-    "presentations": ("presentation", "presentations", "public speaking", "speech", "speeches", "audience", "speaking", "talk in class"),
-    "science": ("science", "biology", "chemistry", "cells", "experiment", "lab", "photosynthesis", "plants"),
-    "physics": ("physics", "forces", "force", "motion", "velocity", "gravity", "energy", "mechanics", "acceleration"),
-    "study_skills": ("study", "studying", "organize", "organizing", "organisation", "organization", "homework", "procrastination", "time management", "exam", "exams", "notes", "planning"),
-    "school_transition": ("new school", "new to", "do not know anyone", "don't know anyone", "making friends", "make friends", "school club", "school clubs", "belong", "lonely", "welcome", "transition", "new student", "new here"),
-}
 SENSITIVE = re.compile(
     r"\b(bull(?:y|ied|ies|ying)|harass(?:ed|ment|ing)?|threat(?:en(?:ed|ing)?|s)?|unsafe|abuse(?:d)?|assault(?:ed)?|weapon|suicid\w*|self[ -]?harm|kill myself|hurt myself|end my life|cutting myself|hit me|hitting me|hurt me|hurting me|picked on|picking on me|stalk\w*|blackmail\w*|sexual|molest\w*|want to die|don['’]t want to live|do not want to live|not safe|don['’]t feel safe|do not feel safe|doesn['’]t feel safe|does not feel safe|not feeling safe|scared to go home|personal safety)\b",
     re.IGNORECASE,
@@ -37,7 +26,7 @@ def analyze_text(text, mode=None):
     if SENSITIVE.search(text):
         return {"topic": None, "route": "private_support", "analysis": {"method": "safety_rules", "confidence": 0.9, "uncertainty": 0.1, "reason": "A personal-safety or bullying phrase triggered conservative private routing. These numbers describe a routing indicator, not a measured probability of detecting danger. Automated rules can miss concerns and are not a safety guarantee."}}
     normalized = normalized_text(text)
-    counts = {topic: sum(1 for word in words if re.search(r"\b" + re.escape(word) + r"\b", normalized)) for topic, words in KEYWORDS.items()}
+    counts = {topic: sum(1 for word in words if re.search(r"\b" + re.escape(word) + r"\b", normalized)) for topic, words in ((t['id'], t['keywords']) for t in list_topics())}
     ranked = sorted(counts, key=counts.get, reverse=True)
     best, second = ranked[:2]
     actual_mode = semantic.effective_mode(mode)

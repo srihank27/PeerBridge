@@ -3,6 +3,7 @@
 from contextlib import asynccontextmanager
 import json
 import os
+import re
 from pathlib import Path
 import sqlite3
 import uuid
@@ -16,7 +17,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from . import db, matching, semantic
 from .analysis import analyze_text, contains_contact, normalized_text
-from .schemas import BatchInput, BlockInput, MatchInput, MissionInput, MissionUpdate, ProfileInput, ReportInput, ResetInput, TOPICS
+from .topics import list_topics, topic_ids
+from .schemas import BatchInput, BlockInput, MatchInput, MissionInput, MissionUpdate, ProfileInput, ReportInput, ResetInput, TopicInput
 
 
 @asynccontextmanager
@@ -73,6 +75,39 @@ def _close_matches(conn, rows, status="cancelled"):
 @router.get("/health")
 def health():
     return {"status": "ok", **semantic.status(), "demo": True, "qa_mode": os.environ.get("PEERBRIDGE_TEST_MODE") == "1"}
+
+
+@router.get("/topics")
+def topics():
+    return list_topics()
+
+
+@router.post("/topics", status_code=201)
+def create_topic(body: TopicInput):
+    identifier = re.sub(r'[^a-z0-9]+', '_', body.label.casefold()).strip('_')
+    if not identifier or len(identifier) > 60 or identifier in ('private_support', 'clarify', 'academic', 'all'):
+        fail(422, 'invalid_topic', 'Choose a topic name containing letters or numbers, without a reserved routing name.')
+    with db.connect() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        if conn.execute('SELECT 1 FROM topics WHERE id=? OR label=? COLLATE NOCASE', (identifier, body.label)).fetchone():
+            fail(409, 'duplicate_topic', 'This topic already exists. Edit the existing topic instead.')
+        conn.execute('INSERT INTO topics(id,label,keywords,description) VALUES(?,?,?,?)',
+                     (identifier, body.label, json.dumps(body.keywords), body.description))
+    matching._calibrated_threshold.cache_clear()
+    return dict(id=identifier, **body.model_dump())
+
+
+@router.put("/topics/{topic_id}")
+def update_topic(topic_id: str, body: TopicInput):
+    with db.connect() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        required(conn, 'topics', topic_id)
+        if conn.execute('SELECT 1 FROM topics WHERE label=? COLLATE NOCASE AND id<>?', (body.label, topic_id)).fetchone():
+            fail(409, 'duplicate_topic', 'Another topic already uses this name.')
+        conn.execute('UPDATE topics SET label=?, keywords=?, description=? WHERE id=?',
+                     (body.label, json.dumps(body.keywords), body.description, topic_id))
+    matching._calibrated_threshold.cache_clear()
+    return dict(id=topic_id, **body.model_dump())
 
 
 @router.get("/profiles")
@@ -199,7 +234,7 @@ def create_match(body: MatchInput):
 
 @router.get("/resources")
 def resources(topic: str | None = None):
-    if topic is not None and topic not in (*TOPICS, "private_support"):
+    if topic is not None and topic not in (*topic_ids(), "private_support"):
         fail(422, "unknown_topic", "Choose a topic from the resource directory.")
     with db.connect() as conn:
         rows = [db.resource_dict(row) for row in conn.execute("SELECT * FROM resources ORDER BY title")]

@@ -1,6 +1,7 @@
 """SQLite storage. Connections are short lived and writes commit atomically."""
 
 from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime, timezone
 import json
 import os
@@ -9,7 +10,13 @@ import sqlite3
 
 
 ROOT = Path(__file__).resolve().parents[2]
+_active_connection = ContextVar("peerbridge_connection", default=None)
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS topics (
+ id TEXT PRIMARY KEY, label TEXT NOT NULL COLLATE NOCASE UNIQUE,
+ keywords TEXT NOT NULL, description TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS profiles (
  id TEXT PRIMARY KEY, alias TEXT NOT NULL COLLATE NOCASE UNIQUE,
  avatar_id TEXT NOT NULL, grade_band TEXT NOT NULL,
@@ -61,11 +68,18 @@ def database_path():
 @contextmanager
 def connect():
     path = database_path()
+    active = _active_connection.get()
+    if active is not None and active[0] == path:
+        # Topic lookups share the caller's snapshot and transaction. Opening a
+        # second connection during a pending SQLite writer can deadlock reads.
+        yield active[1]
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(path), timeout=15)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys=ON")
     conn.execute("PRAGMA busy_timeout=15000")
+    token = _active_connection.set((path, conn))
     try:
         yield conn
         conn.commit()
@@ -73,11 +87,15 @@ def connect():
         conn.rollback()
         raise
     finally:
+        _active_connection.reset(token)
         conn.close()
 
 
 def create_tables(conn):
     conn.executescript(SCHEMA)
+    from .topics import seed_topics
+    seed_topics(conn)
+    conn.commit()
 
 
 def init_database():

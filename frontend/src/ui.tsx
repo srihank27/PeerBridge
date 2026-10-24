@@ -1,15 +1,11 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { ArrowUpRight, Check, Sparkles, X, Zap, Shield, Orbit, Rocket } from 'lucide-react';
-import type { JsonValue, Resource, Scores, Topic } from './types';
+import type { JsonValue, Resource, Scores } from './types';
 
-export const TOPICS: { id: Topic; label: string }[] = [
-  { id: 'algebra', label: 'Algebra' }, { id: 'geometry', label: 'Geometry' }, { id: 'python', label: 'Python' }, { id: 'robotics', label: 'Robotics' },
-  { id: 'writing', label: 'Writing' }, { id: 'presentations', label: 'Presentations' }, { id: 'science', label: 'Science' }, { id: 'physics', label: 'Physics' },
-  { id: 'study_skills', label: 'Study skills' }, { id: 'school_transition', label: 'School transition' },
-];
+import { label } from './topics';
+export { label } from './topics';
 export const SLOTS = ['Mon 16:00', 'Tue 16:00', 'Wed 16:00', 'Thu 16:00', 'Fri 16:00', 'Sat 10:00'];
 export const PREFERENCES = [{ id: 'step_by_step', label: 'Step by step' }, { id: 'practice', label: 'Practice together' }, { id: 'encouragement', label: 'Encouragement' }];
-export const label = (value: string | null | undefined) => value ? (TOPICS.find(t => t.id === value)?.label || value.replaceAll('_', ' ').replace(/^\w/, c => c.toUpperCase())) : 'Unclassified';
 export const pct = (value: number) => `${Math.round(value * 100)}%`;
 export function date(value: string) { const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T12:00:00` : value.endsWith('Z') || /[+-]\d\d:\d\d$/.test(value) ? value : `${value}Z`); return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
 export function Avatar({ variant = 'bolt', size = 'normal', alias = '' }: { variant?: string; size?: 'small' | 'normal' | 'large'; alias?: string }) {

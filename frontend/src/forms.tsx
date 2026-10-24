@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, Check, Plus, ShieldCheck } from 'lucide-react';
 import { api } from './api';
+import { useTopics } from './topics';
 import type { Mission, Profile, ProfileInput } from './types';
-import { Avatar, Modal, PREFERENCES, SLOTS, TOPICS } from './ui';
+import { Avatar, Modal, PREFERENCES, SLOTS } from './ui';
 
 export function ProfileEditor({ profile, onClose, onSaved }: { profile?: Profile; onClose: () => void; onSaved: (profile: Profile) => void }) {
+  const TOPICS = useTopics();
   const [form, setForm] = useState<ProfileInput>(profile ? { alias: profile.alias, avatar_id: profile.avatar_id, grade_band: profile.grade_band, strengths: [...profile.strengths], needs: [...profile.needs], available_slots: [...profile.available_slots], capacity: profile.capacity, support_preferences: [...profile.support_preferences] } : { alias: '', avatar_id: 'bolt', grade_band: 'middle', strengths: [], needs: [], available_slots: [], capacity: 2, support_preferences: ['step_by_step'] });
   const [pending, setPending] = useState(false); const [error, setError] = useState('');
   const toggle = (key: 'strengths' | 'needs' | 'available_slots' | 'support_preferences', value: string) => setForm(old => ({ ...old, [key]: (old[key] as string[]).includes(value) ? old[key].filter(v => v !== value) : [...old[key], value] }));

@@ -1,4 +1,4 @@
-import type { Block, Health, JsonValue, Match, Mission, MissionStatus, Profile, ProfileInput, Recommendations, Report, Resource } from './types';
+import type { Block, Health, JsonValue, Match, Mission, MissionStatus, Profile, ProfileInput, Recommendations, Report, Resource, SupportedTopic, TopicInput } from './types';
 
 export class ApiError extends Error {
   code: string;
@@ -17,6 +17,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 const body = (value: unknown): RequestInit => ({ method: 'POST', body: JSON.stringify(value) });
 export const api = {
+  topics: () => request<SupportedTopic[]>('/topics'),
+  saveTopic: (value: TopicInput, id?: string) => request<SupportedTopic>(id ? `/topics/${id}` : '/topics', { ...body(value), method: id ? 'PUT' : 'POST' }),
   health: () => request<Health>('/health'),
   profiles: () => request<Profile[]>('/profiles'),
   saveProfile: (value: ProfileInput, id?: string) => request<Profile>(id ? `/profiles/${id}` : '/profiles', { ...body(value), method: id ? 'PUT' : 'POST' }),

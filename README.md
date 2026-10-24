@@ -171,3 +171,24 @@ This is a **localhost-only demonstration**, not a service for real students. It 
 Safety rules are deliberately limited and may miss phrasing, context, or languages. The support screen asks the user to reach a trusted adult and explicitly says nobody has been contacted. Reports are simulated and unmonitored. Neither scores nor synthetic evaluation establish safety or real-world educational impact. Curated academic resources supplement peer suggestions; they are not professional support.
 
 The original static Sites configuration in `.openai/hosting.json` is retained from the earlier mockup. Static-only hosting cannot run the Python API or SQLite backend; this implementation runs through FastAPI as documented above. Live school integrations, notification delivery, unrestricted messaging, real registration, competition rule verification, and a recorded submission demo remain outside the implemented local prototype.
+
+
+## Manage supported topics
+
+Open **Manage topics** in the sidebar to add a subject or edit its name, keyword phrases,
+and semantic description. For Calculus, use keywords such as `calculus, derivative,
+derivatives, integral, chain rule` and a description of limits, differentiation, and integration.
+New topics appear immediately in profile strengths/needs, mission filters, and resource filters.
+Add the subject to a mentor's strengths before expecting peer recommendations. Topic creation
+adds no learning-resource links; the verified resource directory remains separate.
+
+Topics persist in the same SQLite database as profiles. Existing databases acquire the catalog
+on backend startup, preserving their records. Topic IDs remain fixed when names change;
+there is no deletion action. Resetting fictional demo profiles and missions retains configured
+topics. Previously private or unclear requests must be submitted again; changing a topic does
+not publish them automatically. Rules and cached semantic embeddings use current topic
+configuration without retraining the model or restarting the server.
+
+The demo exposes `GET /api/topics`, `POST /api/topics`, and `PUT /api/topics/{topic_id}`.
+Topic management shares the prototype's existing unauthenticated demo access; it is not an
+administrator role or an authenticated production settings screen.

@@ -4,23 +4,12 @@ from functools import lru_cache
 import os
 from pathlib import Path
 import threading
+from .topics import topic_descriptions
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 MODEL_DIRECTORY_NAME = f"all-MiniLM-L6-v2-{MODEL_REVISION}"
 ROOT = Path(__file__).resolve().parents[2]
-TOPIC_DESCRIPTIONS = {
-    "algebra": "introductory algebra equations with letters variables linear equations mathematical expressions",
-    "geometry": "geometry triangles angles circles shapes area perimeter geometric proofs",
-    "python": "Python computer programming code functions loops lists software debugging",
-    "robotics": "robotics building robots motors sensors electronics robot engineering",
-    "writing": "essay writing paragraphs grammar revision creative writing literature",
-    "presentations": "public speaking presentations speech audience confidence giving a talk",
-    "science": "science biology chemistry experiments scientific method cells plants lab",
-    "physics": "physics mechanics forces motion velocity energy gravity electricity",
-    "study_skills": "study skills time management homework organization revision planning exams notes",
-    "school_transition": "new school making friends belonging welcome activities school transition peer guide",
-}
 _lock = threading.Lock()
 _model = None
 _attempted = False
@@ -80,7 +69,7 @@ def topic_scores(text, mode=None):
     if effective_mode(mode) != "semantic":
         return {}
     query = _embedding(text)
-    return {topic: max(0.0, min(1.0, float(query @ _embedding(description)))) for topic, description in TOPIC_DESCRIPTIONS.items()}
+    return {topic: max(0.0, min(1.0, float(query @ _embedding(description)))) for topic, description in topic_descriptions().items()}
 
 
 def similarity(text, strengths, mode=None, topic=None):
@@ -92,4 +81,5 @@ def similarity(text, strengths, mode=None, topic=None):
     # canonical topic on both sides would make every identical topic score 1
     # and would erase semantic differences between individual requests.
     query = _embedding(text)
-    return max(max(0.0, min(1.0, float(query @ _embedding(TOPIC_DESCRIPTIONS.get(s, s))))) for s in strengths)
+    descriptions = topic_descriptions()
+    return max(max(0.0, min(1.0, float(query @ _embedding(descriptions.get(s, s))))) for s in strengths)

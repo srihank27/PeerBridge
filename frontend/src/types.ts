@@ -1,4 +1,6 @@
-export type Topic = 'algebra' | 'geometry' | 'python' | 'robotics' | 'writing' | 'presentations' | 'science' | 'physics' | 'study_skills' | 'school_transition';
+export type Topic = string;
+export interface SupportedTopic { id: string; label: string; keywords: string[]; description: string }
+export type TopicInput = Omit<SupportedTopic, 'id'>;
 export type Route = 'academic' | 'school_transition' | 'clarify' | 'private_support';
 export type MissionStatus = 'open' | 'matched' | 'completed' | 'cancelled' | 'private';
 export interface Profile {

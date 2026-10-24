@@ -3,7 +3,8 @@
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-TOPICS = ("algebra", "geometry", "python", "robotics", "writing", "presentations", "science", "physics", "study_skills", "school_transition")
+from .topics import topic_ids
+
 SLOTS = ("Mon 16:00", "Tue 16:00", "Wed 16:00", "Thu 16:00", "Fri 16:00", "Sat 10:00")
 PREFERENCES = ("step_by_step", "practice", "encouragement")
 
@@ -25,7 +26,7 @@ class ProfileInput(StrictModel):
     @field_validator("strengths", "needs", "available_slots", "support_preferences")
     @classmethod
     def allowed_values(cls, values, info):
-        allowed = SLOTS if info.field_name == "available_slots" else PREFERENCES if info.field_name == "support_preferences" else TOPICS
+        allowed = SLOTS if info.field_name == "available_slots" else PREFERENCES if info.field_name == "support_preferences" else topic_ids()
         if any(value not in allowed for value in values):
             raise ValueError(f"Choose values from: {', '.join(allowed)}")
         if len(values) != len(set(values)):
@@ -72,3 +73,20 @@ class ResetInput(StrictModel):
         if value is not True:
             raise ValueError("Reset requires the JSON boolean confirm: true")
         return value
+
+
+class TopicInput(StrictModel):
+    label: str = Field(min_length=2, max_length=60)
+    keywords: list[str] = Field(min_length=1, max_length=40)
+    description: str = Field(min_length=8, max_length=600)
+
+    @field_validator('keywords')
+    @classmethod
+    def clean_keywords(cls, values):
+        import re
+        cleaned = [' '.join(re.findall(r'\w+', value.casefold())) for value in values]
+        if any(not value or len(value) > 80 for value in cleaned):
+            raise ValueError('Use keywords or phrases between 1 and 80 characters.')
+        if len(set(cleaned)) != len(cleaned):
+            raise ValueError('Remove duplicate keywords.')
+        return cleaned

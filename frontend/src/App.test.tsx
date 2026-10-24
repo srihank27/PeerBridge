@@ -46,6 +46,98 @@ afterEach(() => cleanup());
 afterAll(async () => { try { if (verifiedQa) await server('/demo/reset', { confirm: true }); } finally { vi.unstubAllGlobals(); } });
 
 describe('PeerBridge real-backend DOM journeys', () => {
+  it('adds and edits a persistent topic from the UI and uses it for profiles and requests', async () => {
+    const user = await showApp();
+    await user.click(screen.getByRole('button', { name: 'Manage topics' }));
+    await screen.findByRole('heading', { name: 'Manage topics' });
+    const editor = () => within(screen.getByRole('region', { name: 'Topic editor' }));
+    await user.type(editor().getByRole('textbox', { name: 'Topic name' }), 'Calculus');
+    await user.type(editor().getByRole('textbox', { name: 'Keywords' }), 'calculus, derivative, integral, chain rule');
+    await user.type(editor().getByRole('textbox', { name: 'Semantic description' }), 'Calculus limits derivatives integration and rates of change.');
+    await user.click(editor().getByRole('button', { name: 'Add topic' }));
+    await screen.findByRole('button', { name: 'Edit Calculus' });
+    await user.click(screen.getByRole('button', { name: 'Edit Calculus' }));
+    await user.clear(editor().getByRole('textbox', { name: 'Semantic description' }));
+    await user.type(editor().getByRole('textbox', { name: 'Semantic description' }), 'Calculus: derivatives, integrals, limits, and areas under curves.');
+    await user.click(editor().getByRole('button', { name: 'Save topic' }));
+    await waitFor(() => expect(editor().getByRole('heading', { name: 'Add a topic' })).toBeTruthy());
+    await user.selectOptions(identitySelect(), '__edit__');
+    const dialog = screen.getByRole('dialog', { name: 'Edit your hero profile' });
+    await user.click(within(within(dialog).getByRole('group', { name: 'I can help with' })).getByRole('checkbox', { name: 'Calculus' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save hero profile' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await user.click(screen.getByRole('button', { name: /Mission board/ }));
+    expect(within(screen.getByRole('combobox', { name: 'Filter by topic' })).getByRole('option', { name: 'Calculus' })).toBeTruthy();
+    await postMission(user, 'I am working on Calculus and Need help.');
+    await screen.findByRole('dialog', { name: 'Find your next teammate.' });
+    const missions = await server<Mission[]>('/missions');
+    const calculusMission = missions.find(mission => mission.text === 'I am working on Calculus and Need help.');
+    expect(calculusMission?.topic).toBe('calculus');
+    expect(calculusMission?.route).toBe('academic');
+    const topics = await server<{ id: string; description: string }[]>('/topics');
+    expect(topics.find(topic => topic.id === 'calculus')?.description).toBe('Calculus: derivatives, integrals, limits, and areas under curves.');
+  });
+
+  it('personalizes spark requests by strength and removes own or closed requests', async () => {
+    const seeded = await server<Mission[]>('/missions');
+    for (const mission of seeded.filter(m => m.status === 'open')) {
+      await server(`/missions/${mission.id}`, { status: 'cancelled' }, 'PATCH');
+    }
+    const coder = await createProfile('SparkCoder', { strengths: ['python'] });
+    const writer = await createProfile('SparkWriter', { strengths: ['writing'] });
+    const beginner = await createProfile('SparkBeginner', { strengths: [] });
+    const learner = await createProfile('SparkLearner');
+    const pythonText = 'I need help with Python loops and lists for a coding exercise.';
+    const writingText = 'I need help with writing an essay introduction and organizing paragraphs.';
+    const ownText = 'Can someone explain Python functions and return values for my project?';
+    const closedText = 'I need Python help understanding dictionaries and keys for homework.';
+    await server('/missions', { requester_id: learner.id, text: pythonText });
+    await server('/missions', { requester_id: learner.id, text: writingText });
+    await server('/missions', { requester_id: coder.id, text: ownText });
+    const closed = await server<Mission>('/missions', { requester_id: learner.id, text: closedText });
+    await server(`/missions/${closed.id}`, { status: 'cancelled' }, 'PATCH');
+    const user = await showApp(coder.id);
+    const spark = () => within(screen.getByRole('region', { name: 'Requests matching your strengths' }));
+    expect(spark().getByText(pythonText)).toBeTruthy();
+    expect(spark().queryByText(writingText)).toBeNull();
+    expect(spark().queryByText(ownText)).toBeNull();
+    expect(spark().queryByText(closedText)).toBeNull();
+    await user.selectOptions(identitySelect(), writer.id);
+    expect(spark().getByText(writingText)).toBeTruthy();
+    expect(spark().queryByText(pythonText)).toBeNull();
+    await user.selectOptions(identitySelect(), learner.id);
+    expect(spark().getByText('No requests match your strengths yet')).toBeTruthy();
+    await user.selectOptions(identitySelect(), beginner.id);
+    expect(spark().getByText('Share your strengths first')).toBeTruthy();
+    expect(spark().queryByText(writingText)).toBeNull();
+  });
+
+  it('updates visible strengths across tabs when the selected identity changes', async () => {
+    const coder = await createProfile('StrengthCoder', { strengths: ['python', 'robotics'] });
+    const writer = await createProfile('StrengthWriter', { strengths: ['writing'] });
+    const beginner = await createProfile('StrengthBeginner', { strengths: [] });
+    const user = await showApp(coder.id);
+    const summary = () => within(screen.getByRole('region', { name: 'Selected hero strengths' }));
+    expect(summary().getByText('StrengthCoder')).toBeTruthy();
+    expect(summary().getByText('Python')).toBeTruthy();
+    expect(summary().getByText('Robotics')).toBeTruthy();
+    await user.selectOptions(identitySelect(), writer.id);
+    expect(summary().getByText('StrengthWriter')).toBeTruthy();
+    expect(summary().getByText('Writing')).toBeTruthy();
+    expect(summary().queryByText('Python')).toBeNull();
+    expect(summary().queryByText('Robotics')).toBeNull();
+    await user.click(screen.getByRole('button', { name: /Mission board/ }));
+    expect(summary().getByText('Writing')).toBeTruthy();
+    await user.selectOptions(identitySelect(), beginner.id);
+    expect(summary().getByText('StrengthBeginner')).toBeTruthy();
+    expect(summary().getByText('No strengths added yet.')).toBeTruthy();
+    expect(summary().queryByText('Writing')).toBeNull();
+    expect(localStorage.getItem('peerbridge.demo-profile')).toBe(beginner.id);
+    await user.selectOptions(identitySelect(), coder.id);
+    expect(summary().getByText('Python')).toBeTruthy();
+    expect(summary().queryByText('No strengths added yet.')).toBeNull();
+  });
+
   it('creates and edits a persistent hero with multiple strengths, needs, slots, and preferences', async () => {
     const user = await showApp();
     await user.selectOptions(identitySelect(), '__new__');
@@ -107,7 +199,7 @@ describe('PeerBridge real-backend DOM journeys', () => {
     await user.click(screen.getByRole('button', { name: 'Complete', exact: true }));
     await waitFor(async () => expect((await server<Profile[]>('/profiles')).find(p => p.id === mentor.id)?.remaining_capacity).toBe(1));
     expect((await server<Match[]>('/matches')).find(m => m.id === match.id)?.status).toBe('completed');
-    expect(screen.getByRole('button', { name: 'Reopen' })).toBeTruthy();
+    expect(await screen.findByRole('button', { name: 'Reopen' })).toBeTruthy();
   });
 
   it('keeps sensitive and ambiguous requests off the public board and shows honest support states', async () => {
