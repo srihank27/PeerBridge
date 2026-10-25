@@ -46,6 +46,53 @@ afterEach(() => cleanup());
 afterAll(async () => { try { if (verifiedQa) await server('/demo/reset', { confirm: true }); } finally { vi.unstubAllGlobals(); } });
 
 describe('PeerBridge real-backend DOM journeys', () => {
+  it('shows confirmed teammates and personal connections with history and identity switching', async () => {
+    const helper = await createProfile('ConnectionHelper', { strengths: ['algebra'] });
+    const dual = await createProfile('ConnectionDual', { strengths: ['algebra'] });
+    const learner = await createProfile('ConnectionLearner');
+    const newcomer = await createProfile('ConnectionNewcomer');
+    const incomingText = 'I need algebra help solving equations with variables for my next lesson.';
+    const incoming = await server<Mission>('/missions', { requester_id: dual.id, text: incomingText });
+    const received = await server<Match>('/matches', { mission_id: incoming.id, mentor_id: helper.id });
+    const outgoing = await server<Mission>('/missions', { requester_id: learner.id, text: 'Can someone explain algebra equations and linear variables to me?' });
+    await server('/matches', { mission_id: outgoing.id, mentor_id: dual.id });
+    const past = await server<Mission>('/missions', { requester_id: dual.id, text: 'I need algebra help understanding quadratic equations for a worksheet.' });
+    await server('/matches', { mission_id: past.id, mentor_id: helper.id });
+    await server(`/missions/${past.id}`, { status: 'completed' }, 'PATCH');
+    const user = await showApp(dual.id);
+    await user.click(screen.getByRole('button', { name: 'My connections', exact: true }));
+    await screen.findByRole('heading', { name: 'My connections' });
+    const helpingYou = within(screen.getByRole('region', { name: 'People helping you' }));
+    const helpingOthers = within(screen.getByRole('region', { name: 'People you are helping' }));
+    expect(helpingYou.getByRole('heading', { name: helper.alias })).toBeTruthy();
+    expect(helpingOthers.getByRole('heading', { name: learner.alias })).toBeTruthy();
+    expect(helpingYou.getByText('Tue 16:00')).toBeTruthy();
+    expect(helpingYou.getByText('Shared availability is not a booked session.')).toBeTruthy();
+    expect(screen.queryByRole('article', { name: 'Connection with AtlasGuide' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Past (1)' }));
+    expect(screen.getByText('Completed')).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: learner.alias })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Give & get', exact: true }));
+    await user.click(await screen.findByRole('button', { name: incomingText, exact: true }));
+    const dialog = await screen.findByRole('dialog', { name: 'Find your next teammate.' });
+    const teammate = await within(dialog).findByRole('article', { name: `Connection with ${helper.alias}` });
+    expect(within(teammate).getByRole('heading', { name: helper.alias })).toBeTruthy();
+    expect(within(teammate).getByText('Algebra', { selector: '.topic-tag' })).toBeTruthy();
+    await user.click(within(teammate).getByRole('button', { name: 'View connection' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await screen.findByRole('heading', { name: 'My connections' });
+    await waitFor(() => expect(document.activeElement?.id).toBe(`connection-${received.id}`));
+    await user.selectOptions(identitySelect(), helper.id);
+    expect(screen.queryByRole('region', { name: 'People helping you' })).toBeNull();
+    expect(screen.getByRole('heading', { name: dual.alias })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: learner.alias })).toBeNull();
+    await user.selectOptions(identitySelect(), newcomer.id);
+    expect(screen.getByRole('heading', { name: 'No active connections yet' })).toBeTruthy();
+    expect(screen.queryByRole('article', { name: `Connection with ${dual.alias}` })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Past (0)' }));
+    expect(screen.getByRole('heading', { name: 'No past connections yet' })).toBeTruthy();
+  });
+
   it('adds and edits a persistent topic from the UI and uses it for profiles and requests', async () => {
     const user = await showApp();
     await user.click(screen.getByRole('button', { name: 'Manage topics' }));
